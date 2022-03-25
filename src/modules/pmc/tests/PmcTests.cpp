@@ -94,6 +94,8 @@ namespace OSConfig::Platform::Tests
             {"apt-get install bar- -y --allow-downgrades --auto-remove", ""}
         };
 
+        testModule->SetTextResult(textResults);
+
         int status = testModule->Set(componentName, desiredObjectName, validJsonPayload, strlen(validJsonPayload));
         EXPECT_EQ(status, MMI_OK);
     }
