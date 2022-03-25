@@ -166,7 +166,7 @@ namespace OSConfig::Platform::Tests
             {"apt-cache policy sl | grep Installed", "  Installed: (none) "},
             {"apt-cache policy bar | grep Installed", "  Installed: (none) "}
         };
-        char reportedJsonPayload[] = "{\"PackagesFingerprint\":\"25abefbfdb34fd48872dea4e2339f2a17e395196945c77a6c7098c203b87fca4\",\"Packages\":[\"cowsay=(none)\",\"sl=(none)\",\"bar=(none)\"],\"ExecutionState\":4,\"ExecutionSubState\":7,\"ExecutionSubStateDetails\":\"cowsay=3.03+dfsg2-7:1 sl\"}";
+        char reportedJsonPayload[] = "{\"PackagesFingerprint\":\"25abefbfdb34fd48872dea4e2339f2a17e395196945c77a6c7098c203b87fca4\",\"Packages\":[\"cowsay=(none)\",\"sl=(none)\",\"bar=(none)\"],\"ExecutionState\":4,\"ExecutionSubState\":5,\"ExecutionSubStateDetails\":\"cowsay=3.03+dfsg2-7:1 sl\"}";
         int payloadSizeBytes = 0;
         MMI_JSON_STRING payload = nullptr;
         int status;
