@@ -1,7 +1,6 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-#include <filesystem>
 #include <fstream>
 #include <rapidjson/document.h>
 #include <rapidjson/stringbuffer.h>
@@ -162,7 +161,7 @@ int PmcBase::Set(const char* componentName, const char* objectName, const MMI_JS
 
                         if (status == MMI_OK)
                         {
-                            status = PmcBase::ExecuteUpdates(desiredState.packages, !updateSources);
+                            status = PmcBase::ExecuteUpdates(desiredState.packages, true);
                         }
                     }
                     else
@@ -252,6 +251,25 @@ unsigned int PmcBase::GetMaxPayloadSizeBytes()
     return m_maxPayloadSizeBytes;
 }
 
+bool PmcBase::CanRunOnThisPlatform()
+{
+    for (auto& tool : g_requiredTools)
+    {
+        std::string command = std::regex_replace(g_commandCheckToolPresence, std::regex("\\$value"), tool);
+        if (RunCommand(command.c_str(), true, nullptr, 0) != MMI_OK)
+        {
+            if (IsFullLoggingEnabled())
+            {
+                OsConfigLogError(PmcLog::Get(), "Cannot run on this platform, could not find required tool %s", tool.c_str());
+            }
+
+            return false;
+        }
+    }
+
+    return true;
+}
+
 int PmcBase::DeserializeDesiredState(rapidjson::Document& document, DesiredState& object)
 {
     int status = 0;
@@ -285,9 +303,9 @@ int PmcBase::DeserializeDesiredState(rapidjson::Document& document, DesiredState
         }
     }
 
-    if (!document.HasMember(g_sources.c_str()) && !document.HasMember(g_packages.c_str()))
+    if (!document.HasMember(g_packages.c_str()))
     {
-        OsConfigLogError(PmcLog::Get(), "JSON object does not contain '%s', neither '%s'", g_sources.c_str(), g_packages.c_str());
+        OsConfigLogError(PmcLog::Get(), "JSON object does not contain '%s'", g_packages.c_str());
         m_executionState.SetExecutionState(StateComponent::Failed, SubStateComponent::DeserializingDesiredState);
         status = EINVAL;
     }
@@ -469,19 +487,6 @@ int PmcBase::ValidateAndGetPackagesNames(std::vector<std::string> packagesLines)
     return MMI_OK;
 }
 
-std::vector<std::string> PmcBase::Split(const std::string& str, const std::string& delimiter)
-{
-    std::vector<std::string> result;
-    size_t start;
-    size_t end = 0;
-    while ((start = str.find_first_not_of(delimiter, end)) != std::string::npos)
-    {
-        end = str.find(delimiter, start);
-        result.push_back(str.substr(start, end - start));
-    }
-    return result;
-}
-
 std::vector<std::string> PmcBase::GetReportedPackages(std::vector<std::string> packages)
 {
     std::vector<std::string> result;
@@ -520,6 +525,19 @@ std::vector<std::string> PmcBase::GetReportedPackages(std::vector<std::string> p
   return result;
 }
 
+std::vector<std::string> PmcBase::Split(const std::string& str, const std::string& delimiter)
+{
+    std::vector<std::string> result;
+    size_t start;
+    size_t end = 0;
+    while ((start = str.find_first_not_of(delimiter, end)) != std::string::npos)
+    {
+        end = str.find(delimiter, start);
+        result.push_back(str.substr(start, end - start));
+    }
+    return result;
+}
+
 std::string PmcBase::TrimStart(const std::string& str, const std::string& trim)
 {
     size_t pos = str.find_first_not_of(trim);
@@ -543,23 +561,4 @@ std::string PmcBase::TrimEnd(const std::string& str, const std::string& trim)
 std::string PmcBase::Trim(const std::string& str, const std::string& trim)
 {
     return TrimStart(TrimEnd(str, trim), trim);
-}
-
-bool PmcBase::CanRunOnThisPlatform()
-{
-    for (auto& tool : g_requiredTools)
-    {
-        std::string command = std::regex_replace(g_commandCheckToolPresence, std::regex("\\$value"), tool);
-        if (RunCommand(command.c_str(), true, nullptr, 0) != MMI_OK)
-        {
-            if (IsFullLoggingEnabled())
-            {
-                OsConfigLogError(PmcLog::Get(), "Cannot run on this platform, could not find required tool %s", tool.c_str());
-            }
-
-            return false;
-        }
-    }
-
-    return true;
 }

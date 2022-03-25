@@ -1,10 +1,16 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+#include <cstdio>
+#include <map>
 #include <string>
+#include <rapidjson/document.h>
 #include <rapidjson/stringbuffer.h>
+#include <rapidjson/writer.h>
+#include <vector>
 
 #include <CommonUtils.h>
+#include <ExecutionState.h>
 #include <Logging.h>
 #include <Mmi.h>
 
@@ -76,5 +82,5 @@ private:
     ExecutionState m_executionState;
     std::vector<std::string> m_desiredPackages;
     unsigned int m_maxPayloadSizeBytes;
-    size_t m_lastReachedStateHash; //?
+    size_t m_lastReachedStateHash;
 };
