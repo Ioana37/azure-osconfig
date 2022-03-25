@@ -1,6 +1,14 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
+#include <filesystem>
+#include <fstream>
+#include <rapidjson/document.h>
+#include <rapidjson/stringbuffer.h>
+#include <rapidjson/writer.h>
+#include <regex>
+#include <set>
+
 #include "CommonUtils.h"
 #include "Mmi.h"
 #include "PmcBase.h"
